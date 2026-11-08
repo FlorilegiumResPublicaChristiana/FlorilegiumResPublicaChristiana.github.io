@@ -4,39 +4,6 @@
 <link rel="stylesheet" href="style.css"><style>.wrap{overflow-x:auto}.pb{height:9px;background:var(--line);border-radius:5px;overflow:hidden;min-width:90px}.pb i{display:block;height:100%;background:var(--accent)}.btn{display:inline-block;padding:9px 18px;border-radius:6px;background:var(--accent);color:var(--bg)}.lead{font-size:15px;max-width:720px}footer{margin-top:34px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);max-width:760px}</style></head>
 <body><nav class="top"><a class="brand" href="index.html">Florilegium res publica Christiana</a><a href="overview.html" class="">Overview</a><a href="inventory.html" class="">Inventory</a><a href="goal.html" class="">Goal and progress</a><a href="studies.html" class="">Studies</a><a href="donate.html" class="">Donate</a></nav>
 <main class="home"><h1 class="home-title">Florilegium res publica Christiana</h1>
-<div class="mapview" id="mapview" tabindex="0" aria-label="The Ebstorf Map: scroll or pinch to zoom, drag to move"><img id="mapimg" src="ebstorf-3000.jpg" data-full="ebstorf-3000.jpg" alt="The Ebstorf Map (c. 1300), a mappa mundi with Christ embracing the world and Jerusalem at its centre" draggable="false">
-<div class="mapctl"><button type="button" data-z="1.5" title="Zoom in">+</button><button type="button" data-z="0.667" title="Zoom out">−</button><button type="button" data-z="0" title="Whole map">⤢</button></div></div>
-<p class="home-hint small muted">The Ebstorf Map (c. 1300) — scroll to zoom, drag to move. <span class="credit">Image: Wikimedia Commons, public domain.</span></p>
-<p class="lead"><b>Florilegium res publica Christiana</b> (FRPC) is a comprehensive compilation of the foundational documents, imperial laws, papal decrees, and patristic writings that built and sustained the intellectual structure of European Christendom: the cumulative legal, moral, and spiritual “bouquet” that defined the Christian international community throughout the Middle Ages. See <a href="overview.html">what the archive holds</a>, <a href="goal.html">where it is going</a> and <a href="studies.html">what has been published</a>.</p><script>
-(() => {
-  const view = document.getElementById('mapview'), img = document.getElementById('mapimg');
-  let s = 1, x = 0, y = 0, base = 1, full = false;
-  const apply = () => { img.style.transform = `translate(${x}px, ${y}px) scale(${s * base})`; };
-  const fit = () => {                                   // the whole map, centred
-    const w = img.naturalWidth || 3000, h = img.naturalHeight || 2980;
-    base = Math.min(view.clientWidth / w, view.clientHeight / h); s = 1;
-    x = (view.clientWidth - w * base) / 2; y = (view.clientHeight - h * base) / 2; apply();
-  };
-  const zoom = (f, cx, cy) => {                         // zoom by f around the point (cx, cy) of the view
-    const ns = Math.min(Math.max(s * f, 1), 40);
-    f = ns / s; x = cx - (cx - x) * f; y = cy - (cy - y) * f; s = ns; apply();
-    if (!full && s > 2) {                               // sharper image once zoomed in
-      full = true; const hi = new Image(); hi.onload = () => {
-        const k = img.naturalWidth / hi.naturalWidth; img.src = hi.src; base *= k; apply(); }; hi.src = img.dataset.full;
-    }
-  };
-  img.complete ? fit() : img.addEventListener('load', fit, { once: true });
-  window.addEventListener('resize', fit);
-  view.addEventListener('wheel', e => { e.preventDefault(); const r = view.getBoundingClientRect();
-    zoom(Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
-  let drag = null;
-  view.addEventListener('pointerdown', e => { if (e.target.closest('.mapctl')) return;
-    drag = [e.clientX - x, e.clientY - y]; view.setPointerCapture(e.pointerId); view.classList.add('dragging'); });
-  view.addEventListener('pointermove', e => { if (drag) { x = e.clientX - drag[0]; y = e.clientY - drag[1]; apply(); } });
-  view.addEventListener('pointerup', () => { drag = null; view.classList.remove('dragging'); });
-  view.querySelectorAll('.mapctl button').forEach(b => b.addEventListener('click', () => {
-    const z = +b.dataset.z; z ? zoom(z, view.clientWidth / 2, view.clientHeight / 2) : fit(); }));
-  view.addEventListener('keydown', e => { if (e.key === '+' || e.key === '=') zoom(1.5, view.clientWidth / 2, view.clientHeight / 2);
-    if (e.key === '-') zoom(0.667, view.clientWidth / 2, view.clientHeight / 2); if (e.key === '0') fit(); });
-})();
-</script><footer>FRPC is a private research project. This site gives figures and descriptions only; the texts of the sources stay in the private archive. Figures as of 8 November 2026.</footer></main></body></html>
+<img src="ebstorf-top.webp" alt="The upper part of the Ebstorf Map (c. 1300), with the face of Christ at the top and the lands of the East below" style="display:block;width:100%;height:auto;border-radius:6px;border:1px solid var(--line)">
+<p class="home-hint small muted">The Ebstorf Map (c. 1300). <span class="credit">Image: Wikimedia Commons, public domain.</span></p>
+<p class="lead"><b>Florilegium res publica Christiana</b> (FRPC) is a comprehensive compilation of the foundational documents, imperial laws, papal decrees, and patristic writings that built and sustained the intellectual structure of European Christendom: the cumulative legal, moral, and spiritual “bouquet” that defined the Christian international community throughout the Middle Ages. See <a href="overview.html">what the archive holds</a>, <a href="goal.html">where it is going</a> and <a href="studies.html">what has been published</a>.</p><footer>FRPC is a private research project. This site gives figures and descriptions only; the texts of the sources stay in the private archive. Figures as of 8 November 2026.</footer></main></body></html>
