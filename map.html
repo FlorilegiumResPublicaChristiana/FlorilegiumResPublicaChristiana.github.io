@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map · Florilegium res publica Christiana</title><meta name="description" content="FRPC: a research library for the legal history of Latin Christendom, 1100–1400.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="stylesheet" href="style.css"><style>body > main{max-width:min(1800px,100%)!important;box-sizing:border-box}@media (min-width:1500px){body > main{zoom:1.08}}@media (min-width:1800px){body > main{zoom:1.15}}@media (min-width:2200px){body > main{zoom:1.25}}@media (min-width:2600px){body > main{zoom:1.4}}.wrap{overflow-x:auto}.pb{height:9px;background:var(--line);border-radius:5px;overflow:hidden;min-width:90px}.pb i{display:block;height:100%;background:var(--accent)}.btn{display:inline-block;padding:9px 18px;border-radius:6px;background:var(--accent);color:var(--bg)}.lead{font-size:15px;max-width:none;margin-left:auto;margin-right:auto}footer{margin-top:34px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);max-width:none;margin-left:auto;margin-right:auto}main.home{height:auto;min-height:0}.home-hint{max-width:none;margin-left:auto;margin-right:auto}</style></head>
+<body><nav class="top"><a class="brand" href="index.html">Florilegium res publica Christiana</a><a href="vision.html" class="">Vision</a><a href="overview.html" class="">Overview</a><a href="map.html" class="on">Map</a><a href="teaching.html" class="">Teaching</a><a href="studies.html" class="">Studies</a><a href="donate.html" class="">Donate</a><a href="contact.html" class="">Contact</a></nav>
+<main class="teach"><style>body > main{zoom:1!important}</style><h1>Map <span class="muted small">the archive in space and time</span></h1>
+<p class="lead">Every document of the archive is placed where it was issued and dated to its decade. Watch the realms of Christendom fill with documents, follow a legal concept across the Kingdom of Hungary, or trace where a king or queen issued charters.</p>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<script src="vendor/leaflet/leaflet.js"></script>
+<style>
+.mp-modes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.mp-modes button{font:inherit;font-size:15px;cursor:pointer;padding:8px 18px;border-radius:20px;border:1px solid var(--line);background:var(--bg);color:inherit}
+.mp-modes button[aria-pressed=true]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.mp-wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+#mp-map{height:min(72vh,760px);min-height:420px;border:1px solid var(--line);border-radius:12px;background:#cbd6d8}
+.mp-side{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:14px 16px;max-height:min(72vh,760px);overflow:auto}
+.mp-side h2{margin:0 0 4px;font-size:18px;text-transform:none;letter-spacing:0}
+.mp-side select{width:100%;font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:inherit;margin:4px 0 8px}
+.mp-time{display:flex;align-items:center;gap:10px;margin:10px 0 2px}
+.mp-time input{flex:1;accent-color:var(--accent)} .mp-time b{min-width:5.5em;text-align:right;font-variant-numeric:tabular-nums}
+.mp-time button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:inherit;border-radius:16px;padding:4px 12px}
+.mp-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}
+.mp-stat div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;color:var(--muted)}
+.mp-stat b{display:block;font-size:18px;color:var(--fg)}
+.mp-list{list-style:none;padding:0;margin:6px 0 0;font-size:13.5px} .mp-list li{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-top:1px solid var(--line)}
+.mp-list li span:last-child{font-variant-numeric:tabular-nums;color:var(--muted)}
+.mp-note{font-size:12.5px;color:var(--muted);line-height:1.45;margin:8px 0 0}
+.mp-goals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0 6px}
+.mp-goals div{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:12px 14px;font-size:14px;line-height:1.5}
+.mp-goals b{display:block;color:var(--accent);margin-bottom:2px}
+.leaflet-container{font:inherit} .leaflet-tooltip{font-size:12.5px}
+@media (max-width:980px){.mp-wrap{grid-template-columns:1fr} .mp-side{max-height:none} #mp-map{height:62vh} .mp-goals{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.mp-goals{grid-template-columns:1fr}}
+</style>
+<div class="mp-modes" role="group" aria-label="Map mode">
+<button data-m="atlas" aria-pressed="true">Atlas of Christendom</button><button data-m="concepts" aria-pressed="false">Concepts in Hungary</button><button data-m="journeys" aria-pressed="false">Royal itineraries</button>
+</div>
+<div class="mp-wrap"><div id="mp-map" role="application" aria-label="Map"></div><aside class="mp-side" id="mp-side" aria-live="polite"></aside></div>
+<section class="mp-goals">
+<div><b>Every document in its place</b>Each charter is placed where it was issued and dated to its decade, so the archive can be read as a map as well as a list.</div>
+<div><b>How a concept spread</b>Choose a legal concept and watch where it appears and when: the words and numbers of the studies, seen in space.</div>
+<div><b>Realms side by side</b>Hungary beside the Empire, the Holy See, England, France and Sicily: who wrote how much, and when.</div>
+<div><b>Power on the move</b>Where kings and queens issued their charters: the itinerant court, its residences and its journeys.</div>
+</section>
+<p class="mp-note">19 realms, 461 places of issue in Hungary, 57 concepts and 9 royal itineraries, as of the date below. Counts are documents by place of issue (or, where none is known, the first place a document names); documents that name only a whole region are not shown. Relief: Natural Earth, public domain. Map library: Leaflet.</p>
+<script>
+(function(){
+  var side=document.getElementById('mp-side'), css=getComputedStyle(document.documentElement);
+  var ACC=(css.getPropertyValue('--accent')||'#8a4b2a').trim()||'#8a4b2a';
+  var map=L.map('mp-map',{zoomSnap:0.25,minZoom:3,maxZoom:10,maxBounds:[[30,-16],[64,48]],worldCopyJump:false}).setView([47,12],4);
+  L.tileLayer('map/relief/{z}/{x}/{y}.jpg',{minZoom:3,minNativeZoom:4,maxNativeZoom:8,maxZoom:10,bounds:[[33,-12],[62,45]],attribution:'Relief: Natural Earth'}).addTo(map);
+  var layer=L.featureGroup().addTo(map), cache={}, timer=null, mode='atlas', needFit=true;
+  function fit(){ if(needFit && layer.getLayers().length){ needFit=false; map.fitBounds(layer.getBounds(),{padding:[18,18],maxZoom:7}); } }
+  function get(f){ if(!cache[f]) cache[f]=fetch('map/data/'+f).then(function(r){return r.json()}); return cache[f]; }
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function sumTo(o,y){ var n=0; for(var k in o){ if(+k<=y) n+=o[k]; } return n; }
+  function slider(min,max,step,val,fmt,on){
+    var h='<div class="mp-time"><button type="button" class="mp-play" aria-label="Play">▶</button><input type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'" aria-label="Time"><b></b></div>';
+    return {html:h, bind:function(){ var r=side.querySelector('input[type=range]'), b=side.querySelector('.mp-time b'), p=side.querySelector('.mp-play');
+      function upd(){ b.textContent=fmt(+r.value); on(+r.value); } r.addEventListener('input',upd); upd();
+      p.addEventListener('click',function(){ if(timer){clearInterval(timer);timer=null;p.textContent='▶';return;} if(+r.value>=max) r.value=min;
+        p.textContent='❚❚'; timer=setInterval(function(){ r.value=Math.min(max,+r.value+step); upd(); if(+r.value>=max){clearInterval(timer);timer=null;p.textContent='▶';} },600); }); } };
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null;} }
+
+  function atlas(){
+    Promise.all([get('atlas.json'),get('concepts.json')]).then(function(r){
+      var A=r[0], C=r[1], conc='';
+      var opts='<option value="">All documents</option>'+C.filter(function(c){return A.concepts[c.k]}).map(function(c){return '<option value="'+c.k+'">'+esc(c.label)+'</option>'}).join('');
+      var sl=slider(1100,1390,10,1390,function(y){return '1100–'+(y+9)},draw);
+      side.innerHTML='<h2>Atlas of Christendom</h2><p class="mp-note" style="margin-top:0">Documents issued in each realm, added up to the decade on the slider. Press ▶ to watch the record grow.</p><select aria-label="Concept">'+opts+'</select>'+sl.html+'<div class="mp-stat"></div><ul class="mp-list"></ul>';
+      side.querySelector('select').addEventListener('change',function(){conc=this.value; draw(+side.querySelector('input[type=range]').value);});
+      function draw(y){
+        layer.clearLayers(); var rows=[], total=0;
+        A.realms.forEach(function(g){ var src=conc?((A.concepts[conc]||{})[g.k]||{}):g.t, n=sumTo(src,y); if(!n) return; total+=n; rows.push([g,n]); });
+        var max=Math.max.apply(null,rows.map(function(x){return x[1]}).concat([1]));
+        rows.forEach(function(x){ var g=x[0], n=x[1];
+          L.circleMarker(g.ll,{radius:6+34*Math.sqrt(n/max),color:ACC,weight:1.5,fillColor:ACC,fillOpacity:0.35}).bindTooltip('<b>'+esc(g.n)+'</b><br>'+n.toLocaleString()+' documents').addTo(layer); });
+        fit(); rows.sort(function(a,b){return b[1]-a[1]});
+        side.querySelector('.mp-stat').innerHTML='<div><b>'+total.toLocaleString()+'</b>documents</div><div><b>'+rows.length+'</b>realms</div><div><b>'+(y+9)+'</b>up to</div>';
+        side.querySelector('.mp-list').innerHTML=rows.slice(0,12).map(function(x){return '<li><span>'+esc(x[0].n)+'</span><span>'+x[1].toLocaleString()+'</span></li>'}).join('');
+      }
+      sl.bind();
+    });
+  }
+
+  function concepts(){
+    get('concepts.json').then(function(C){
+      var opts='<option value="">All documents</option>'+C.map(function(c){return '<option value="'+c.k+'"'+(c.k==='in-perpetuum'?' selected':'')+'>'+esc(c.label)+'</option>'}).join('');
+      var sl=slider(1100,1390,10,1390,function(y){return '1100–'+(y+9)},function(y){cur=y; draw();});
+      side.innerHTML='<h2>Concepts in Hungary</h2><p class="mp-note" style="margin-top:0">Where the documents that use a concept were issued, added up to the decade on the slider. Earlier places are darker.</p><select aria-label="Concept">'+opts+'</select>'+sl.html+'<div class="mp-info"></div><div class="mp-stat"></div><ul class="mp-list"></ul>';
+      var sel=side.querySelector('select'), cur=1390, pts=[], meta=null;
+      function load(){ var k=sel.value; meta=C.find(function(c){return c.k===k})||null;
+        get(k?'concept-'+k+'.json':'places.json').then(function(p){ pts=p; needFit=true; draw(); }); }
+      sel.addEventListener('change',load);
+      function draw(){
+        layer.clearLayers(); var rows=[], total=0;
+        pts.forEach(function(p){ var n=sumTo(p[3],cur); if(!n) return; var first=Math.min.apply(null,Object.keys(p[3]).map(Number)); total+=n; rows.push([p,n,first]); });
+        var max=Math.max.apply(null,rows.map(function(x){return x[1]}).concat([1]));
+        rows.forEach(function(x){ var p=x[0], n=x[1], t=(x[2]-1100)/300;
+          L.circleMarker([p[1],p[2]],{radius:3+16*Math.sqrt(n/max),color:ACC,weight:1,fillColor:ACC,fillOpacity:0.85-0.55*t}).bindTooltip('<b>'+esc(p[0])+'</b><br>'+n+' documents · first '+x[2]+'s').addTo(layer); });
+        fit(); rows.sort(function(a,b){return b[1]-a[1]});
+        side.querySelector('.mp-info').innerHTML=meta?('<p class="mp-note"><b>'+esc(meta.label)+'</b>: first attested in the '+meta.first+'s'+(meta.study?'. Study: <a href="'+meta.study.u+'" target="_blank" rel="noopener">'+esc(meta.study.t)+'</a>':'')+'.</p>'):'';
+        side.querySelector('.mp-stat').innerHTML='<div><b>'+total.toLocaleString()+'</b>documents</div><div><b>'+rows.length+'</b>places</div><div><b>'+(cur+9)+'</b>up to</div>';
+        side.querySelector('.mp-list').innerHTML=rows.slice(0,12).map(function(x){return '<li><span>'+esc(x[0][0])+'</span><span>'+x[1]+'</span></li>'}).join('');
+      }
+      sl.bind(); load();
+    });
+  }
+
+  function journeys(){
+    get('journeys.json').then(function(J){
+      var opts=J.map(function(j,i){return '<option value="'+i+'"'+(j.label.indexOf('Charles I')===0?' selected':'')+'>'+esc(j.label)+' ('+j.reign[0]+'–'+j.reign[1]+')</option>'}).join('');
+      side.innerHTML='<h2>Royal itineraries</h2><p class="mp-note" style="margin-top:0">Where a king or queen issued charters during the reign. Within a year the order of stops follows the editions.</p><select aria-label="Ruler">'+opts+'</select><div class="mp-slot"></div><div class="mp-stat"></div><ul class="mp-list"></ul>';
+      var sel=side.querySelector('select');
+      function pick(){ stop(); needFit=true; var j=J[+sel.value];
+        var slot=side.querySelector('.mp-slot'); var sl=slider(j.y0,j.y1,1,j.y1,function(y){return j.y0+'–'+y},function(y){draw(j,y)});
+        slot.innerHTML=sl.html; var tmp=side; sl.bind(); }
+      function draw(j,y){
+        layer.clearLayers(); var st=j.stops.filter(function(s){return s[0]<=y}), count={}, ll=[];
+        st.forEach(function(s){ var k=s[2]; if(!count[k]) count[k]={n:0,ll:[s[3],s[4]],first:s[0],last:s[0]}; count[k].n++; count[k].last=s[0]; ll.push([s[3],s[4]]); });
+        if(ll.length>1) L.polyline(ll,{color:ACC,weight:1.2,opacity:0.35}).addTo(layer);
+        var keys=Object.keys(count), max=Math.max.apply(null,keys.map(function(k){return count[k].n}).concat([1]));
+        keys.forEach(function(k){ var c=count[k];
+          L.circleMarker(c.ll,{radius:3+14*Math.sqrt(c.n/max),color:ACC,weight:1,fillColor:ACC,fillOpacity:0.6}).bindTooltip('<b>'+esc(k)+'</b><br>'+c.n+' charters, '+c.first+(c.last!==c.first?'–'+c.last:'')).addTo(layer); });
+        if(st.length){ var last=st[st.length-1]; L.circleMarker([last[3],last[4]],{radius:7,color:'#fff',weight:2,fillColor:ACC,fillOpacity:1}).bindTooltip('Latest: '+esc(last[2])+', '+esc(last[1])).addTo(layer); }
+        fit(); keys.sort(function(a,b){return count[b].n-count[a].n});
+        side.querySelector('.mp-stat').innerHTML='<div><b>'+st.length.toLocaleString()+'</b>charters</div><div><b>'+keys.length+'</b>places</div><div><b>'+y+'</b>up to</div>';
+        side.querySelector('.mp-list').innerHTML=keys.slice(0,12).map(function(k){return '<li><span>'+esc(k)+'</span><span>'+count[k].n+'</span></li>'}).join('');
+      }
+      sel.addEventListener('change',pick); pick();
+    });
+  }
+
+  var modes={atlas:atlas,concepts:concepts,journeys:journeys};
+  function go(m){ stop(); mode=m; needFit=true; layer.clearLayers();
+    document.querySelectorAll('.mp-modes button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.m===m?'true':'false')});
+    modes[m](); history.replaceState(null,'','#'+m); }
+  document.querySelectorAll('.mp-modes button').forEach(function(b){b.addEventListener('click',function(){go(b.dataset.m)})});
+  go(modes[location.hash.slice(1)]?location.hash.slice(1):'atlas');
+  window.addEventListener('hashchange',function(){ var m=location.hash.slice(1); if(modes[m] && m!==mode) go(m); });
+})();
+</script><footer>FRPC is a private research project. The archive's texts stay private; this site shows figures, descriptions and a few short passages from editions in the public domain. Figures as of 19 November 2026.<br><br>© 2026 Dr. Mihai Safta. All rights reserved. The text, analysis, methodology, and original data published on this site are the intellectual property of the author and are protected by copyright. Any reproduction, quotation, or distribution, in whole or in part, requires explicit attribution to the author in the following form: Dr. Mihai Safta, <i>Florilegium res publica Christiana</i>, https://florilegiumrespublicachristiana.github.io (accessed [date]). Published studies carry their own licence as stated in each study.</footer></main></body></html>
